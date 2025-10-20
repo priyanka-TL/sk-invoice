@@ -1,0 +1,21 @@
+# Screenshots and test files
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
