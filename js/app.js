@@ -75,6 +75,10 @@ class InvoiceApp {
             this.invoiceManager.calculateTotals();
         });
 
+        document.getElementById('advancePayment').addEventListener('input', () => {
+            this.invoiceManager.calculateTotals();
+        });
+
         // Currency change
         document.getElementById('currency').addEventListener('change', () => {
             this.invoiceManager.calculateTotals();
@@ -340,7 +344,7 @@ class InvoiceApp {
     calculateInvoiceTotals(invoice) {
         const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
         const tax = (subtotal * invoice.taxRate) / 100;
-        const total = subtotal + tax - invoice.discount;
+        const total = subtotal + tax - invoice.discount - (invoice.advancePayment || 0);
         return { subtotal, tax, total };
     }
 
@@ -350,8 +354,7 @@ class InvoiceApp {
             'businessEmail',
             'clientName',
             'invoiceNumber',
-            'invoiceDate',
-            'dueDate'
+            'invoiceDate'
         ];
         
         for (const fieldId of requiredFields) {
