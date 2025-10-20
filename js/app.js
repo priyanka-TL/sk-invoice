@@ -13,6 +13,12 @@ class InvoiceApp {
         const newInvoice = this.invoiceManager.newInvoice();
         this.invoiceManager.loadToForm(newInvoice);
         
+        // Ensure at least one line item is present
+        const lineItems = document.querySelectorAll('.line-item');
+        if (lineItems.length === 0) {
+            this.invoiceManager.addLineItemToForm();
+        }
+        
         // Setup event listeners
         this.setupEventListeners();
         

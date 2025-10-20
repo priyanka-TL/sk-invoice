@@ -146,10 +146,18 @@ class InvoiceManager {
             this.addLineItemToForm(item);
         });
         
-        // If no items, add one empty item
+        // Always ensure at least one item (even if empty)
         if (invoice.items.length === 0) {
             this.addLineItemToForm();
         }
+        
+        // Verify the line item was actually added
+        setTimeout(() => {
+            const lineItems = document.querySelectorAll('.line-item');
+            if (lineItems.length === 0) {
+                this.addLineItemToForm();
+            }
+        }, 100);
         
         // Recalculate totals
         this.calculateTotals();

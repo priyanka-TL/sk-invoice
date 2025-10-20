@@ -232,131 +232,149 @@ class PDFGenerator {
 
     // Generate invoice HTML from template
     generateInvoiceHTML(invoice, template = 'template1', includeStyles = false) {
-        const currencySymbol = this.invoiceManager.getCurrencySymbol(invoice.currency);
-        const { subtotal, tax, total } = this.calculateTotals(invoice);
-        
-        let html = '';
-        
-        // Add inline styles if requested (for PDF generation)
-        if (includeStyles) {
-            html += this.getInlineStyles(template);
-        }
-        
-        html += `<div class="invoice-template ${template}">`;
-        
-        // Different header styles based on template
-        if (template === 'template1') {
-            html += this.generateClassicHeader(invoice);
-        } else if (template === 'template2') {
-            html += this.generateModernHeader(invoice);
-        } else {
-            html += this.generateMinimalHeader(invoice);
-        }
-        
-        // Invoice info section
-        html += `
-            <div class="invoice-info-section">
-                <div class="info-block">
-                    <h4>From</h4>
-                    <p><strong>${invoice.business.name}</strong></p>
-                    ${invoice.business.email ? `<p>${invoice.business.email}</p>` : ''}
-                    ${invoice.business.phone ? `<p>${invoice.business.phone}</p>` : ''}
-                    ${invoice.business.address ? `<p>${invoice.business.address.replace(/\n/g, '<br>')}</p>` : ''}
+        try {
+            const currencySymbol = this.invoiceManager.getCurrencySymbol(invoice.currency);
+            const { subtotal, tax, total } = this.calculateTotals(invoice);
+            
+            let html = '';
+            
+            // Add inline styles if requested (for PDF generation)
+            if (includeStyles) {
+                html += this.getInlineStyles(template);
+            }
+            
+            html += `<div class="invoice-template ${template}">`;
+            
+            // Add header based on template
+            if (template === 'template1') {
+                html += this.generateClassicHeader(invoice);
+            } else if (template === 'template2') {
+                html += this.generateModernHeader(invoice);
+            } else if (template === 'template3') {
+                html += this.generateMinimalHeader(invoice);
+            } else if (template === 'template4') {
+                html += this.generateYellowBlackHeader(invoice);
+            } else {
+                html += this.generateMinimalHeader(invoice);
+            }
+            
+            // Invoice info section
+            html += `
+                <div class="invoice-info-section">
+                    <div class="info-block">
+                        <h4>From</h4>
+                        <p><strong>${this.escapeHtml(invoice.business.name)}</strong></p>
+                        ${invoice.business.email ? `<p>${this.escapeHtml(invoice.business.email)}</p>` : ''}
+                        ${invoice.business.phone ? `<p>${this.escapeHtml(invoice.business.phone)}</p>` : ''}
+                        ${invoice.business.address ? `<p>${this.escapeHtml(invoice.business.address).replace(/\n/g, '<br>')}</p>` : ''}
+                    </div>
+                    <div class="info-block">
+                        <h4>Bill To</h4>
+                        <p><strong>${this.escapeHtml(invoice.client.name)}</strong></p>
+                        ${invoice.client.email ? `<p>${this.escapeHtml(invoice.client.email)}</p>` : ''}
+                        ${invoice.client.address ? `<p>${this.escapeHtml(invoice.client.address).replace(/\n/g, '<br>')}</p>` : ''}
+                    </div>
                 </div>
-                <div class="info-block">
-                    <h4>Bill To</h4>
-                    <p><strong>${invoice.client.name}</strong></p>
-                    ${invoice.client.email ? `<p>${invoice.client.email}</p>` : ''}
-                    ${invoice.client.address ? `<p>${invoice.client.address.replace(/\n/g, '<br>')}</p>` : ''}
+            `;
+            
+            // Invoice details (date)
+            html += `
+                <div class="invoice-details">
+                    <div class="detail-row">
+                        <span>Invoice Date:</span>
+                        <span>${this.invoiceManager.formatDate(invoice.date)}</span>
+                    </div>
                 </div>
-            </div>
-        `;
-        
-        // Invoice details
-        html += `
-            <div class="invoice-info-section">
-                <div class="info-block">
-                    <h4>Invoice Details</h4>
-                    <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
-                    <p><strong>Date:</strong> ${this.invoiceManager.formatDate(invoice.date)}</p>
-                </div>
-                <div class="info-block"></div>
-            </div>
-        `;
-        
-        // Line items table
-        html += `
-            <table class="invoice-table">
-                <thead>
+            `;
+            
+            // Line items table
+            html += `
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Add items or show "No items" message
+            if (invoice.items && invoice.items.length > 0) {
+                invoice.items.forEach(item => {
+                    html += `
+                        <tr>
+                            <td>${this.escapeHtml(item.description)}</td>
+                            <td>${item.quantity}</td>
+                            <td>${currencySymbol}${item.rate.toFixed(2)}</td>
+                            <td>${currencySymbol}${item.amount.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                html += `
                     <tr>
-                        <th>Description</th>
-                        <th>Quantity</th>
-                        <th>Rate</th>
-                        <th>Amount</th>
+                        <td colspan="4" style="text-align: center; color: #999;">No items added</td>
                     </tr>
-                </thead>
-                <tbody>
-        `;
-        
-        invoice.items.forEach(item => {
+                `;
+            }
+            
             html += `
-                <tr>
-                    <td>${item.description}</td>
-                    <td>${item.quantity}</td>
-                    <td>${currencySymbol}${item.rate.toFixed(2)}</td>
-                    <td>${currencySymbol}${item.amount.toFixed(2)}</td>
-                </tr>
+                    </tbody>
+                </table>
             `;
-        });
-        
-        html += `
-                </tbody>
-            </table>
-        `;
-        
-        // Summary
-        html += `
-            <div class="invoice-summary">
-                <div class="summary-row">
-                    <span>Subtotal:</span>
-                    <span>${currencySymbol}${subtotal.toFixed(2)}</span>
-                </div>
-                <div class="summary-row">
-                    <span>Tax (${invoice.taxRate}%):</span>
-                    <span>${currencySymbol}${tax.toFixed(2)}</span>
-                </div>
-                ${invoice.discount > 0 ? `
-                <div class="summary-row">
-                    <span>Discount:</span>
-                    <span>-${currencySymbol}${invoice.discount.toFixed(2)}</span>
-                </div>
-                ` : ''}
-                ${(invoice.advancePayment || 0) > 0 ? `
-                <div class="summary-row">
-                    <span>Advance Payment:</span>
-                    <span>-${currencySymbol}${(invoice.advancePayment || 0).toFixed(2)}</span>
-                </div>
-                ` : ''}
-                <div class="summary-row total">
-                    <span>Total:</span>
-                    <span>${currencySymbol}${total.toFixed(2)}</span>
-                </div>
-            </div>
-        `;
-        
-        // Notes
-        if (invoice.notes) {
+            
+            // Summary section
             html += `
-                <div class="invoice-notes">
-                    <h4>Notes / Terms</h4>
-                    <p>${invoice.notes.replace(/\n/g, '<br>')}</p>
+                <div class="summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>${currencySymbol}${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Tax (${invoice.taxRate}%):</span>
+                        <span>${currencySymbol}${tax.toFixed(2)}</span>
+                    </div>
+                    ${invoice.discount > 0 ? `
+                        <div class="summary-row">
+                            <span>Discount:</span>
+                            <span>-${currencySymbol}${invoice.discount.toFixed(2)}</span>
+                        </div>
+                    ` : ''}
+                    ${invoice.advancePayment > 0 ? `
+                        <div class="summary-row">
+                            <span>Advance Payment:</span>
+                            <span>-${currencySymbol}${invoice.advancePayment.toFixed(2)}</span>
+                        </div>
+                    ` : ''}
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span>${currencySymbol}${total.toFixed(2)}</span>
+                    </div>
                 </div>
             `;
+            
+            // Notes section
+            if (invoice.notes && invoice.notes.trim()) {
+                html += `
+                    <div class="invoice-notes">
+                        <h4>Notes / Terms</h4>
+                        <p>${this.escapeHtml(invoice.notes).replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`; // Close invoice-template div
+            
+            console.log('Generated HTML successfully, length:', html.length);
+            return html;
+            
+        } catch (error) {
+            console.error('Error in generateInvoiceHTML:', error);
+            throw new Error(`Failed to generate invoice HTML: ${error.message}`);
         }
-        
-        html += `</div>`;
-        
-        return html;
     }
 
     // Generate classic header
@@ -408,58 +426,88 @@ class PDFGenerator {
         `;
     }
 
+    // Generate yellow/black header (Template 4)
+    generateYellowBlackHeader(invoice) {
+        return `
+            <div class="invoice-header">
+                <div class="invoice-title">INVOICE</div>
+                <div class="invoice-number">
+                    <p>${invoice.invoiceNumber}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Helper method for HTML escaping
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     // Calculate totals
     calculateTotals(invoice) {
-        const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
-        const tax = (subtotal * invoice.taxRate) / 100;
-        const total = subtotal + tax - invoice.discount - (invoice.advancePayment || 0);
+        const subtotal = invoice.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+        const tax = (subtotal * (invoice.taxRate || 0)) / 100;
+        const discount = invoice.discount || 0;
+        const advancePayment = invoice.advancePayment || 0;
+        const total = subtotal + tax - discount - advancePayment;
         return { subtotal, tax, total };
     }
 
     // Generate and download PDF
     async generatePDF(invoice, template = 'template1') {
-        console.log('Starting PDF generation for invoice:', invoice.invoiceNumber);
-        console.log('Using template:', template);
-        
-        // Generate HTML with inline styles for PDF
-        const html = this.generateInvoiceHTML(invoice, template, true);
-        
-        // Create temporary container with proper visibility
-        const container = document.createElement('div');
-        container.innerHTML = html;
-        container.style.position = 'fixed';
-        container.style.top = '-10000px';
-        container.style.left = '0';
-        container.style.width = '800px';
-        container.style.background = 'white';
-        container.style.zIndex = '-1';
-        document.body.appendChild(container);
-        
-        console.log('Container added to DOM, waiting for styles to render...');
-        
-        // Wait for styles and fonts to load (important for proper rendering)
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // PDF options
-        const opt = {
-            margin: [10, 10, 10, 10],
-            filename: `${invoice.invoiceNumber}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2,
-                useCORS: true,
-                letterRendering: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            },
-            jsPDF: { 
-                unit: 'mm', 
-                format: 'a4', 
-                orientation: 'portrait' 
-            }
-        };
-        
         try {
+            console.log('Starting PDF generation for invoice:', invoice.invoiceNumber);
+            console.log('Using template:', template);
+            
+            // Generate HTML with inline styles for PDF
+            const htmlContent = this.generateInvoiceHTML(invoice, template, true);
+            
+            console.log('Generated HTML length:', htmlContent.length);
+            console.log('HTML preview:', htmlContent.substring(0, 200));
+            
+            if (!htmlContent || htmlContent.length < 100) {
+                throw new Error('Generated HTML content is too short or empty');
+            }
+            
+            // Create temporary container with proper visibility
+            const container = document.createElement('div');
+            container.innerHTML = htmlContent;
+            container.style.position = 'fixed';
+            container.style.top = '-10000px';
+            container.style.left = '0';
+            container.style.width = '800px';
+            container.style.background = 'white';
+            container.style.zIndex = '-1';
+            document.body.appendChild(container);
+            
+            console.log('Container added to DOM, waiting for styles to render...');
+            
+            // Wait for styles and fonts to load (important for proper rendering)
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // PDF options
+            const opt = {
+                margin: 10,
+                filename: `${invoice.invoiceNumber}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: true,
+                    letterRendering: true,
+                    backgroundColor: '#ffffff'
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+            
             console.log('Generating PDF with html2pdf...');
             
             // Generate PDF
@@ -472,7 +520,7 @@ class PDFGenerator {
             
             return true;
         } catch (error) {
-            console.error('PDF generation error:', error);
+            console.error('PDF Generation Error:', error);
             console.error('Error details:', {
                 message: error.message,
                 stack: error.stack,
@@ -481,6 +529,7 @@ class PDFGenerator {
             });
             
             // Clean up even on error
+            const container = document.querySelector('div[style*="position: fixed"][style*="top: -10000px"]');
             if (container && container.parentNode) {
                 document.body.removeChild(container);
             }
