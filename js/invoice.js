@@ -3,6 +3,14 @@
 
 class InvoiceManager {
     constructor() {
+        // Default business information
+        this.defaultBusinessInfo = {
+            name: 'SK Constructions and Engineering Solutions',
+            email: 'skconstructions@example.com',
+            phone: '7377377757',
+            address: 'NH-66, Majali, Karnataka 581345'
+        };
+        
         this.currentInvoice = this.createEmptyInvoice();
         this.loadFromLocalStorage();
     }
@@ -16,10 +24,10 @@ class InvoiceManager {
             dueDate: this.getDefaultDueDate(),
             currency: 'USD',
             business: {
-                name: '',
-                email: '',
-                phone: '',
-                address: ''
+                name: this.defaultBusinessInfo.name,
+                email: this.defaultBusinessInfo.email,
+                phone: this.defaultBusinessInfo.phone,
+                address: this.defaultBusinessInfo.address
             },
             client: {
                 name: '',
@@ -297,6 +305,7 @@ class InvoiceManager {
             const info = JSON.parse(businessInfo);
             this.currentInvoice.business = info;
         }
+        // If no saved info, defaults from createEmptyInvoice() are already set
     }
 
     // Create new invoice
@@ -304,9 +313,11 @@ class InvoiceManager {
         const businessInfo = localStorage.getItem('businessInfo');
         this.currentInvoice = this.createEmptyInvoice();
         
+        // Use saved business info if available, otherwise use defaults
         if (businessInfo) {
             this.currentInvoice.business = JSON.parse(businessInfo);
         }
+        // If no saved info, defaults from createEmptyInvoice() are already set
         
         return this.currentInvoice;
     }
