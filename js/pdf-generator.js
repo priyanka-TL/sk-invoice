@@ -279,7 +279,6 @@ class PDFGenerator {
                     <h4>Invoice Details</h4>
                     <p><strong>Invoice #:</strong> ${invoice.invoiceNumber}</p>
                     <p><strong>Date:</strong> ${this.invoiceManager.formatDate(invoice.date)}</p>
-                    <p><strong>Due Date:</strong> ${this.invoiceManager.formatDate(invoice.dueDate)}</p>
                 </div>
                 <div class="info-block"></div>
             </div>
@@ -330,6 +329,12 @@ class PDFGenerator {
                 <div class="summary-row">
                     <span>Discount:</span>
                     <span>-${currencySymbol}${invoice.discount.toFixed(2)}</span>
+                </div>
+                ` : ''}
+                ${(invoice.advancePayment || 0) > 0 ? `
+                <div class="summary-row">
+                    <span>Advance Payment:</span>
+                    <span>-${currencySymbol}${(invoice.advancePayment || 0).toFixed(2)}</span>
                 </div>
                 ` : ''}
                 <div class="summary-row total">
@@ -407,7 +412,7 @@ class PDFGenerator {
     calculateTotals(invoice) {
         const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
         const tax = (subtotal * invoice.taxRate) / 100;
-        const total = subtotal + tax - invoice.discount;
+        const total = subtotal + tax - invoice.discount - (invoice.advancePayment || 0);
         return { subtotal, tax, total };
     }
 

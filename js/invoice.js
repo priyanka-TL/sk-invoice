@@ -21,8 +21,7 @@ class InvoiceManager {
             id: this.generateId(),
             invoiceNumber: this.generateInvoiceNumber(),
             date: new Date().toISOString().split('T')[0],
-            dueDate: this.getDefaultDueDate(),
-            currency: 'USD',
+            currency: 'INR',
             business: {
                 name: this.defaultBusinessInfo.name,
                 email: this.defaultBusinessInfo.email,
@@ -37,6 +36,7 @@ class InvoiceManager {
             items: [],
             taxRate: 0,
             discount: 0,
+            advancePayment: 0,
             notes: '',
             template: 'template4',
             createdAt: new Date().toISOString(),
@@ -72,7 +72,6 @@ class InvoiceManager {
             ...this.currentInvoice,
             invoiceNumber: document.getElementById('invoiceNumber').value,
             date: document.getElementById('invoiceDate').value,
-            dueDate: document.getElementById('dueDate').value,
             currency: document.getElementById('currency').value,
             business: {
                 name: document.getElementById('businessName').value,
@@ -88,6 +87,7 @@ class InvoiceManager {
             items: this.getLineItemsFromForm(),
             taxRate: parseFloat(document.getElementById('taxRate').value) || 0,
             discount: parseFloat(document.getElementById('discount').value) || 0,
+            advancePayment: parseFloat(document.getElementById('advancePayment').value) || 0,
             notes: document.getElementById('notes').value,
             template: document.getElementById('templateSelect').value,
             updatedAt: new Date().toISOString()
@@ -124,7 +124,6 @@ class InvoiceManager {
         
         document.getElementById('invoiceNumber').value = invoice.invoiceNumber;
         document.getElementById('invoiceDate').value = invoice.date;
-        document.getElementById('dueDate').value = invoice.dueDate;
         document.getElementById('currency').value = invoice.currency;
         document.getElementById('businessName').value = invoice.business.name;
         document.getElementById('businessEmail').value = invoice.business.email;
@@ -135,6 +134,7 @@ class InvoiceManager {
         document.getElementById('clientAddress').value = invoice.client.address || '';
         document.getElementById('taxRate').value = invoice.taxRate;
         document.getElementById('discount').value = invoice.discount;
+        document.getElementById('advancePayment').value = invoice.advancePayment || 0;
         document.getElementById('notes').value = invoice.notes || '';
         document.getElementById('templateSelect').value = invoice.template || 'template1';
         
@@ -221,20 +221,22 @@ class InvoiceManager {
         const items = this.getLineItemsFromForm();
         const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
         const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const advancePayment = parseFloat(document.getElementById('advancePayment').value) || 0;
         const currency = document.getElementById('currency').value;
         
         const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
         const tax = (subtotal * taxRate) / 100;
-        const total = subtotal + tax - discount;
+        const total = subtotal + tax - discount - advancePayment;
         
         const currencySymbol = this.getCurrencySymbol(currency);
         
         document.getElementById('subtotal').textContent = `${currencySymbol}${subtotal.toFixed(2)}`;
         document.getElementById('tax').textContent = `${currencySymbol}${tax.toFixed(2)}`;
         document.getElementById('discountAmount').textContent = `-${currencySymbol}${discount.toFixed(2)}`;
+        document.getElementById('advancePaymentAmount').textContent = `-${currencySymbol}${advancePayment.toFixed(2)}`;
         document.getElementById('total').textContent = `${currencySymbol}${total.toFixed(2)}`;
         
-        return { subtotal, tax, discount, total };
+        return { subtotal, tax, discount, advancePayment, total };
     }
 
     // Get currency symbol
