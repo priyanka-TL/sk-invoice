@@ -189,6 +189,43 @@ class PDFGenerator {
                 .template3 .invoice-table td {
                     border-bottom: 1px solid #e0e0e0;
                 }
+                
+                /* Template 4 - Minimal Yellow & Black */
+                .template4 {
+                    color: #333;
+                }
+                
+                .template4 .invoice-header {
+                    background: #FFD700;
+                    border-bottom: 3px solid #000;
+                    padding: 1.5rem;
+                    margin: -2rem -2rem 2rem -2rem;
+                }
+                
+                .template4 .invoice-title {
+                    color: #000;
+                    font-weight: 600;
+                    font-size: 2.5rem;
+                }
+                
+                .template4 .invoice-table th {
+                    background: #000;
+                    color: #FFD700;
+                    padding: 12px 10px;
+                    font-weight: 600;
+                }
+                
+                .template4 .invoice-table td {
+                    border-bottom: 1px solid #e0e0e0;
+                }
+                
+                .template4 .summary-row.total {
+                    background: #FFD700;
+                    color: #000;
+                    padding: 15px;
+                    border-radius: 4px;
+                    font-weight: 700;
+                }
             </style>
         `;
     }
