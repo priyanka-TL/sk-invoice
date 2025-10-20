@@ -6,7 +6,7 @@ class InvoiceManager {
         // Default business information
         this.defaultBusinessInfo = {
             name: 'SK Constructions and Engineering Solutions',
-            email: '',
+            email: 'skcesolutions@gmail.com',
             phone: '7377377757',
             address: 'NH-66, Majali, Karnataka 581345'
         };
