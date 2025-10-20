@@ -163,18 +163,30 @@ class InvoiceApp {
             return;
         }
 
+        // Show loading overlay
+        const loadingOverlay = this.showLoadingOverlay('Generating PDF...');
+        
         try {
             const invoice = this.invoiceManager.loadFromForm();
             const template = document.getElementById('templateSelect').value;
             
-            this.showNotification('Generating PDF...', 'info');
+            console.log('Initiating PDF download for invoice:', invoice.invoiceNumber);
             
+            // Generate PDF
             await this.pdfGenerator.generatePDF(invoice, template);
+            
+            // Hide loading overlay
+            this.hideLoadingOverlay(loadingOverlay);
             
             this.showNotification('PDF downloaded successfully!', 'success');
         } catch (error) {
             console.error('Error generating PDF:', error);
-            this.showNotification('Error generating PDF. Please try again.', 'error');
+            console.error('Error details:', error.message);
+            
+            // Hide loading overlay
+            this.hideLoadingOverlay(loadingOverlay);
+            
+            this.showNotification('Failed to generate PDF. Please check the console for details and try again.', 'error');
         }
     }
 
@@ -285,13 +297,26 @@ class InvoiceApp {
     async downloadSavedInvoice(id) {
         const invoice = this.invoiceManager.getInvoiceById(id);
         if (invoice) {
+            // Show loading overlay
+            const loadingOverlay = this.showLoadingOverlay('Generating PDF...');
+            
             try {
-                this.showNotification('Generating PDF...', 'info');
+                console.log('Downloading saved invoice:', invoice.invoiceNumber);
+                
                 await this.pdfGenerator.generatePDF(invoice, invoice.template);
+                
+                // Hide loading overlay
+                this.hideLoadingOverlay(loadingOverlay);
+                
                 this.showNotification('PDF downloaded successfully!', 'success');
             } catch (error) {
                 console.error('Error generating PDF:', error);
-                this.showNotification('Error generating PDF. Please try again.', 'error');
+                console.error('Error details:', error.message);
+                
+                // Hide loading overlay
+                this.hideLoadingOverlay(loadingOverlay);
+                
+                this.showNotification('Failed to generate PDF. Please check the console for details and try again.', 'error');
             }
         }
     }
@@ -366,6 +391,91 @@ class InvoiceApp {
         document.getElementById('modal').classList.add('hidden');
     }
 
+    showLoadingOverlay(message = 'Loading...') {
+        // Create loading overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 2rem 3rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        `;
+        
+        const spinner = document.createElement('div');
+        spinner.className = 'spinner';
+        spinner.style.cssText = `
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        `;
+        
+        const text = document.createElement('p');
+        text.textContent = message;
+        text.style.cssText = `
+            font-size: 1rem;
+            color: #1e293b;
+            font-weight: 600;
+            margin: 0;
+        `;
+        
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        if (!document.querySelector('style[data-loading-styles]')) {
+            style.setAttribute('data-loading-styles', 'true');
+            document.head.appendChild(style);
+        }
+        
+        content.appendChild(spinner);
+        content.appendChild(text);
+        overlay.appendChild(content);
+        document.body.appendChild(overlay);
+        
+        return overlay;
+    }
+
+    hideLoadingOverlay(overlay) {
+        if (overlay && overlay.parentNode) {
+            overlay.style.animation = 'fadeOut 0.3s ease';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    document.body.removeChild(overlay);
+                }
+            }, 300);
+        }
+    }
+
     showNotification(message, type = 'info') {
         // Create notification element
         const notification = document.createElement('div');
@@ -400,7 +510,10 @@ class InvoiceApp {
                 }
             }
         `;
-        document.head.appendChild(style);
+        if (!document.querySelector('style[data-notification-styles]')) {
+            style.setAttribute('data-notification-styles', 'true');
+            document.head.appendChild(style);
+        }
         
         document.body.appendChild(notification);
         
@@ -409,7 +522,9 @@ class InvoiceApp {
             notification.style.opacity = '0';
             notification.style.transform = 'translateX(400px)';
             setTimeout(() => {
-                document.body.removeChild(notification);
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
             }, 300);
         }, 3000);
     }
