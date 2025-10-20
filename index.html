@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator - Create Professional Invoices</title>
+    <meta name="description" content="Free online invoice generator. Create, edit, and download professional invoices in PDF format.">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-file-invoice"></i> Invoice Generator</h1>
+                <p>Create professional invoices in seconds - No login required</p>
+            </div>
+            <div class="header-actions">
+                <button id="newInvoiceBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Invoice
+                </button>
+                <button id="savedInvoicesBtn" class="btn btn-secondary">
+                    <i class="fas fa-list"></i> Saved Invoices
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Invoice Editor -->
+            <div id="invoiceEditor" class="section">
+                <div class="section-header">
+                    <h2>Invoice Details</h2>
+                    <div class="template-selector">
+                        <label for="templateSelect">Template:</label>
+                        <select id="templateSelect" class="form-select">
+                            <option value="template1">Classic</option>
+                            <option value="template2">Modern</option>
+                            <option value="template3">Minimal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Invoice Form -->
+                <form id="invoiceForm" class="invoice-form">
+                    <!-- Business Information -->
+                    <div class="form-section">
+                        <h3>Your Business Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="businessName">Business Name *</label>
+                                <input type="text" id="businessName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="businessEmail">Email *</label>
+                                <input type="email" id="businessEmail" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="businessPhone">Phone</label>
+                                <input type="tel" id="businessPhone" class="form-control">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="businessAddress">Address</label>
+                                <textarea id="businessAddress" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client Information -->
+                    <div class="form-section">
+                        <h3>Client Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="clientName">Client Name *</label>
+                                <input type="text" id="clientName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="clientEmail">Client Email</label>
+                                <input type="email" id="clientEmail" class="form-control">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="clientAddress">Client Address</label>
+                                <textarea id="clientAddress" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Information -->
+                    <div class="form-section">
+                        <h3>Invoice Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="invoiceNumber">Invoice Number *</label>
+                                <input type="text" id="invoiceNumber" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="invoiceDate">Invoice Date *</label>
+                                <input type="date" id="invoiceDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dueDate">Due Date *</label>
+                                <input type="date" id="dueDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="currency">Currency</label>
+                                <select id="currency" class="form-select">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
+                                    <option value="INR">INR (₹)</option>
+                                    <option value="AUD">AUD ($)</option>
+                                    <option value="CAD">CAD ($)</option>
+                                    <option value="JPY">JPY (¥)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Line Items -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h3>Line Items</h3>
+                            <button type="button" id="addItemBtn" class="btn btn-small">
+                                <i class="fas fa-plus"></i> Add Item
+                            </button>
+                        </div>
+                        <div id="lineItems" class="line-items"></div>
+                    </div>
+
+                    <!-- Calculations -->
+                    <div class="form-section">
+                        <h3>Additional Charges</h3>
+                        <div class="calculations-grid">
+                            <div class="form-group">
+                                <label for="taxRate">Tax Rate (%)</label>
+                                <input type="number" id="taxRate" class="form-control" min="0" max="100" step="0.01" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="discount">Discount ($)</label>
+                                <input type="number" id="discount" class="form-control" min="0" step="0.01" value="0">
+                            </div>
+                        </div>
+                        <div class="totals">
+                            <div class="total-row">
+                                <span>Subtotal:</span>
+                                <span id="subtotal">$0.00</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Tax:</span>
+                                <span id="tax">$0.00</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Discount:</span>
+                                <span id="discountAmount">-$0.00</span>
+                            </div>
+                            <div class="total-row total">
+                                <span>Total:</span>
+                                <span id="total">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-section">
+                        <h3>Notes / Terms</h3>
+                        <textarea id="notes" class="form-control" rows="4" placeholder="Enter any additional notes or payment terms..."></textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <button type="button" id="previewBtn" class="btn btn-secondary">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button type="button" id="saveBtn" class="btn btn-info">
+                            <i class="fas fa-save"></i> Save Invoice
+                        </button>
+                        <button type="button" id="downloadPdfBtn" class="btn btn-success">
+                            <i class="fas fa-download"></i> Download PDF
+                        </button>
+                        <button type="button" id="printBtn" class="btn btn-secondary">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Invoice Preview -->
+            <div id="invoicePreview" class="section hidden">
+                <div class="section-header">
+                    <h2>Invoice Preview</h2>
+                    <button id="closePreviewBtn" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Close Preview
+                    </button>
+                </div>
+                <div id="previewContent" class="preview-content"></div>
+            </div>
+
+            <!-- Saved Invoices List -->
+            <div id="savedInvoicesList" class="section hidden">
+                <div class="section-header">
+                    <h2>Saved Invoices</h2>
+                    <button id="closeSavedListBtn" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+                <div id="invoicesList" class="invoices-list"></div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Invoice Generator. All invoices are stored locally in your browser. No data is sent to any server.</p>
+        </footer>
+    </div>
+
+    <!-- Modal for confirmations -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modalTitle">Confirm</h3>
+            <p id="modalMessage"></p>
+            <div class="modal-actions">
+                <button id="modalConfirm" class="btn btn-primary">Confirm</button>
+                <button id="modalCancel" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="js/invoice.js"></script>
+    <script src="js/pdf-generator.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

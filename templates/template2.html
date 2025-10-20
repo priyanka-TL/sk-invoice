@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Template - Modern</title>
+    <style>
+        /* Modern Template Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .invoice-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .invoice-title {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .invoice-number {
+            text-align: right;
+            font-size: 24px;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .invoice-body {
+            padding: 40px;
+        }
+
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .info-block h4 {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #667eea;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .info-block p {
+            margin-bottom: 5px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .invoice-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .invoice-table th {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .invoice-table td {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .invoice-table th:last-child,
+        .invoice-table td:last-child {
+            text-align: right;
+        }
+
+        .invoice-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .summary {
+            margin-left: auto;
+            max-width: 300px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #667eea;
+            font-size: 20px;
+            font-weight: 700;
+            padding-top: 12px;
+            margin-top: 8px;
+            color: #667eea;
+        }
+
+        .notes {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .notes h4 {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #667eea;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .notes p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+            .invoice-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <div>
+                <div class="invoice-title">INVOICE</div>
+                <p style="margin-top: 5px; opacity: 0.9;">[Company Name]</p>
+            </div>
+            <div class="invoice-number">
+                [Invoice Number]
+            </div>
+        </div>
+
+        <div class="invoice-body">
+            <div class="info-section">
+                <div class="info-block">
+                    <h4>From</h4>
+                    <p><strong>[Company Name]</strong></p>
+                    <p>[Email]</p>
+                    <p>[Phone]</p>
+                    <p>[Address]</p>
+                </div>
+                <div class="info-block">
+                    <h4>Bill To</h4>
+                    <p><strong>[Client Name]</strong></p>
+                    <p>[Client Email]</p>
+                    <p>[Client Address]</p>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-block">
+                    <h4>Invoice Details</h4>
+                    <p><strong>Invoice #:</strong> [Invoice Number]</p>
+                    <p><strong>Date:</strong> [Invoice Date]</p>
+                    <p><strong>Due Date:</strong> [Due Date]</p>
+                </div>
+                <div class="info-block"></div>
+            </div>
+
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>[Item Description]</td>
+                        <td>[Quantity]</td>
+                        <td>$[Rate]</td>
+                        <td>$[Amount]</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span>$[Subtotal]</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax:</span>
+                    <span>$[Tax]</span>
+                </div>
+                <div class="summary-row">
+                    <span>Discount:</span>
+                    <span>-$[Discount]</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span>$[Total]</span>
+                </div>
+            </div>
+
+            <div class="notes">
+                <h4>Notes / Terms</h4>
+                <p>[Notes and payment terms]</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
