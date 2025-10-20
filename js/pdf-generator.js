@@ -6,12 +6,206 @@ class PDFGenerator {
         this.invoiceManager = invoiceManager;
     }
 
+    // Get inline styles for PDF generation
+    getInlineStyles(template = 'template1') {
+        return `
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                .invoice-template {
+                    font-family: 'Helvetica', Arial, sans-serif;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 2rem;
+                    background: white;
+                    color: #1e293b;
+                }
+                
+                .invoice-header {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 2rem;
+                    padding-bottom: 1rem;
+                    border-bottom: 2px solid #1e293b;
+                }
+                
+                .invoice-title {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    color: #4f46e5;
+                }
+                
+                .invoice-info-section {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 2rem;
+                    margin-bottom: 2rem;
+                }
+                
+                .info-block h4 {
+                    font-size: 0.875rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .info-block p {
+                    margin-bottom: 0.25rem;
+                    font-size: 0.875rem;
+                }
+                
+                .invoice-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 2rem;
+                }
+                
+                .invoice-table th,
+                .invoice-table td {
+                    padding: 0.75rem;
+                    text-align: left;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                
+                .invoice-table th {
+                    background: #f8fafc;
+                    font-weight: 600;
+                    font-size: 0.875rem;
+                    text-transform: uppercase;
+                }
+                
+                .invoice-table td {
+                    font-size: 0.875rem;
+                }
+                
+                .invoice-table th:last-child,
+                .invoice-table td:last-child {
+                    text-align: right;
+                }
+                
+                .invoice-summary {
+                    margin-left: auto;
+                    max-width: 300px;
+                }
+                
+                .summary-row {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 0.5rem 0;
+                    font-size: 0.875rem;
+                }
+                
+                .summary-row.total {
+                    border-top: 2px solid #1e293b;
+                    font-size: 1.125rem;
+                    font-weight: 700;
+                    color: #4f46e5;
+                    padding-top: 0.75rem;
+                    margin-top: 0.5rem;
+                }
+                
+                .invoice-notes {
+                    margin-top: 2rem;
+                    padding-top: 2rem;
+                    border-top: 1px solid #e2e8f0;
+                }
+                
+                .invoice-notes h4 {
+                    font-size: 0.875rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .invoice-notes p {
+                    font-size: 0.875rem;
+                    color: #64748b;
+                    white-space: pre-wrap;
+                }
+                
+                /* Template 1 - Classic */
+                .template1 .invoice-header {
+                    border-bottom: 3px solid #000;
+                }
+                
+                .template1 .invoice-title {
+                    color: #000;
+                }
+                
+                .template1 .invoice-table th {
+                    background: #000;
+                    color: white;
+                }
+                
+                /* Template 2 - Modern */
+                .template2 .invoice-header {
+                    border-bottom: 3px solid #4f46e5;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 1.5rem;
+                    margin: -2rem -2rem 2rem -2rem;
+                }
+                
+                .template2 .invoice-title {
+                    color: white;
+                }
+                
+                .template2 .invoice-info-section .info-block h4 {
+                    color: #4f46e5;
+                }
+                
+                .template2 .invoice-table th {
+                    background: #4f46e5;
+                    color: white;
+                }
+                
+                /* Template 3 - Minimal */
+                .template3 {
+                    color: #333;
+                }
+                
+                .template3 .invoice-header {
+                    border-bottom: 1px solid #e0e0e0;
+                }
+                
+                .template3 .invoice-title {
+                    color: #666;
+                    font-weight: 300;
+                    font-size: 2.5rem;
+                }
+                
+                .template3 .invoice-table th {
+                    background: transparent;
+                    border-bottom: 2px solid #333;
+                    color: #333;
+                }
+                
+                .template3 .invoice-table td {
+                    border-bottom: 1px solid #e0e0e0;
+                }
+            </style>
+        `;
+    }
+
     // Generate invoice HTML from template
-    generateInvoiceHTML(invoice, template = 'template1') {
+    generateInvoiceHTML(invoice, template = 'template1', includeStyles = false) {
         const currencySymbol = this.invoiceManager.getCurrencySymbol(invoice.currency);
         const { subtotal, tax, total } = this.calculateTotals(invoice);
         
-        let html = `<div class="invoice-template ${template}">`;
+        let html = '';
+        
+        // Add inline styles if requested (for PDF generation)
+        if (includeStyles) {
+            html += this.getInlineStyles(template);
+        }
+        
+        html += `<div class="invoice-template ${template}">`;
         
         // Different header styles based on template
         if (template === 'template1') {
@@ -182,14 +376,27 @@ class PDFGenerator {
 
     // Generate and download PDF
     async generatePDF(invoice, template = 'template1') {
-        const html = this.generateInvoiceHTML(invoice, template);
+        console.log('Starting PDF generation for invoice:', invoice.invoiceNumber);
+        console.log('Using template:', template);
         
-        // Create temporary container
+        // Generate HTML with inline styles for PDF
+        const html = this.generateInvoiceHTML(invoice, template, true);
+        
+        // Create temporary container with proper visibility
         const container = document.createElement('div');
         container.innerHTML = html;
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
+        container.style.position = 'fixed';
+        container.style.top = '-10000px';
+        container.style.left = '0';
+        container.style.width = '800px';
+        container.style.background = 'white';
+        container.style.zIndex = '-1';
         document.body.appendChild(container);
+        
+        console.log('Container added to DOM, waiting for styles to render...');
+        
+        // Wait for styles and fonts to load (important for proper rendering)
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         // PDF options
         const opt = {
@@ -199,7 +406,9 @@ class PDFGenerator {
             html2canvas: { 
                 scale: 2,
                 useCORS: true,
-                letterRendering: true
+                letterRendering: true,
+                logging: false,
+                backgroundColor: '#ffffff'
             },
             jsPDF: { 
                 unit: 'mm', 
@@ -209,8 +418,12 @@ class PDFGenerator {
         };
         
         try {
+            console.log('Generating PDF with html2pdf...');
+            
             // Generate PDF
             await html2pdf().set(opt).from(container).save();
+            
+            console.log('PDF generated successfully!');
             
             // Clean up
             document.body.removeChild(container);
@@ -218,7 +431,18 @@ class PDFGenerator {
             return true;
         } catch (error) {
             console.error('PDF generation error:', error);
-            document.body.removeChild(container);
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack,
+                invoice: invoice.invoiceNumber,
+                template: template
+            });
+            
+            // Clean up even on error
+            if (container && container.parentNode) {
+                document.body.removeChild(container);
+            }
+            
             throw error;
         }
     }
