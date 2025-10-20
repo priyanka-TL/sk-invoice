@@ -38,7 +38,7 @@ class InvoiceManager {
             taxRate: 0,
             discount: 0,
             notes: '',
-            template: 'template1',
+            template: 'template3',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
